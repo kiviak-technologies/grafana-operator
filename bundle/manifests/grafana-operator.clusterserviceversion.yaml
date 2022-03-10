@@ -4,21 +4,40 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.3.2
+    categories: Monitoring
+    certified: "False"
+    containerImage: quay.io/grafana-operator/grafana-operator:v4.2.0
+    createdAt: "2022-02-22T16:00:12Z"
+    description: A Kubernetes Operator based on the Operator SDK for creating and
+      managing Grafana instances
+    operators.operatorframework.io/builder: operator-sdk-v1.13.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-  name: grafana-operator.v4.0.0
+    repository: https://github.com/grafana-operator/grafana-operator
+    support: grafana-operator
+  labels:
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.arm64: supported
+    operatorframework.io/arch.s390x: supported
+  name: grafana-operator.v4.2.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - kind: GrafanaDashboard
+    - description: GrafanaDashboard is the Schema for the grafanadashboards API
+      displayName: Grafana Dashboard
+      kind: GrafanaDashboard
       name: grafanadashboards.integreatly.org
       version: v1alpha1
     - kind: GrafanaDataSource
       name: grafanadatasources.integreatly.org
       version: v1alpha1
-    - kind: Grafana
+    - kind: GrafanaNotificationChannel
+      name: grafananotificationchannels.integreatly.org
+      version: v1alpha1
+    - description: Grafana is the Schema for the grafanas API
+      displayName: Grafana
+      kind: Grafana
       name: grafanas.integreatly.org
       version: v1alpha1
   description: |
@@ -67,6 +86,7 @@ spec:
           - create
           - get
           - list
+          - patch
           - watch
         - apiGroups:
           - ""
@@ -133,6 +153,26 @@ spec:
         - apiGroups:
           - integreatly.org
           resources:
+          - grafananotificationchannels
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - integreatly.org
+          resources:
+          - grafananotificationchannels/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - integreatly.org
+          resources:
           - grafanas
           - grafanas/finalizers
           verbs:
@@ -167,6 +207,7 @@ spec:
           - route.openshift.io
           resources:
           - routes
+          - routes/custom-host
           verbs:
           - create
           - delete
@@ -187,7 +228,7 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        serviceAccountName: default
+        serviceAccountName: grafana-operator-controller-manager
       deployments:
       - name: grafana-operator-controller-manager
         spec:
@@ -195,7 +236,8 @@ spec:
           selector:
             matchLabels:
               control-plane: controller-manager
-          strategy: {}
+          strategy:
+            type: Recreate
           template:
             metadata:
               labels:
@@ -207,16 +249,16 @@ spec:
                 - --upstream=http://127.0.0.1:8080/
                 - --logtostderr=true
                 - --v=10
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
                 name: kube-rbac-proxy
                 ports:
                 - containerPort: 8443
                   name: https
+                  protocol: TCP
                 resources: {}
               - args:
                 - --health-probe-bind-address=:8081
                 - --metrics-bind-address=127.0.0.1:8080
-                - --leader-elect
                 - --zap-log-level=error
                 command:
                 - /manager
@@ -229,7 +271,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: quay.io/grafana-operator/grafana-operator:v4.0.0
+                image: quay.io/grafana-operator/grafana-operator:v4.2.0
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -246,21 +288,32 @@ spec:
                   periodSeconds: 10
                 resources:
                   limits:
-                    cpu: 100m
+                    cpu: 200m
                     memory: 300Mi
                   requests:
                     cpu: 100m
                     memory: 100Mi
                 securityContext:
                   allowPrivilegeEscalation: false
+              serviceAccountName: grafana-operator-controller-manager
               terminationGracePeriodSeconds: 10
       permissions:
       - rules:
         - apiGroups:
           - ""
-          - coordination.k8s.io
           resources:
           - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
           - leases
           verbs:
           - get
@@ -277,7 +330,7 @@ spec:
           verbs:
           - create
           - patch
-        serviceAccountName: default
+        serviceAccountName: grafana-operator-controller-manager
     strategy: deployment
   installModes:
   - supported: true
@@ -301,4 +354,5 @@ spec:
   maturity: alpha
   provider:
     name: Red Hat
-  version: 4.0.0
+  replaces: grafana-operator.v4.1.1
+  version: 4.2.0

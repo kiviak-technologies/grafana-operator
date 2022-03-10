@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/integr8ly/grafana-operator/api/integreatly/v1alpha1"
+	"github.com/grafana-operator/grafana-operator/v4/api/integreatly/v1alpha1"
 )
 
 type GrafanaIni struct {
@@ -198,6 +198,10 @@ func (i *GrafanaIni) parseConfig(config map[string][]string) map[string][]string
 		config = i.cfgAuthLdap(config)
 	}
 
+	if i.cfg.AuthOkta != nil {
+		config = i.cfgAuthOkta(config)
+	}
+
 	if i.cfg.AuthProxy != nil {
 		config = i.cfgAuthProxy(config)
 	}
@@ -217,6 +221,7 @@ func (i *GrafanaIni) parseConfig(config map[string][]string) map[string][]string
 	if i.cfg.Dashboards != nil {
 		var items []string
 		items = appendInt(items, "versions_to_keep", i.cfg.Dashboards.VersionsToKeep)
+		items = appendStr(items, "default_home_dashboard_path", i.cfg.Dashboards.DefaultHomeDashboardPath)
 		config["dashboards"] = items
 	}
 
@@ -260,6 +265,10 @@ func (i *GrafanaIni) parseConfig(config map[string][]string) map[string][]string
 
 	if i.cfg.Alerting != nil {
 		config = i.cfgAlerting(config)
+	}
+
+	if i.cfg.UnifiedAlerting != nil {
+		config = i.cfgUnifiedAlerting(config)
 	}
 
 	if i.cfg.Panels != nil {
@@ -372,10 +381,13 @@ func (i *GrafanaIni) cfgAuth(config map[string][]string) map[string][]string {
 	var items []string
 	items = appendStr(items, "login_cookie_name", i.cfg.Auth.LoginCookieName)
 	items = appendInt(items, "login_maximum_inactive_lifetime_days", i.cfg.Auth.LoginMaximumInactiveLifetimeDays)
+	items = appendStr(items, "login_maximum_inactive_lifetime_duration", i.cfg.Auth.LoginMaximumInactiveLifetimeDuration)
 	items = appendInt(items, "login_maximum_lifetime_days", i.cfg.Auth.LoginMaximumLifetimeDays)
+	items = appendStr(items, "login_maximum_lifetime_duration", i.cfg.Auth.LoginMaximumLifetimeDuration)
 	items = appendInt(items, "token_rotation_interval_minutes", i.cfg.Auth.TokenRotationIntervalMinutes)
 	items = appendBool(items, "disable_login_form", i.cfg.Auth.DisableLoginForm)
 	items = appendBool(items, "disable_signout_menu", i.cfg.Auth.DisableSignoutMenu)
+	items = appendBool(items, "sigv4_auth_enabled", i.cfg.Auth.SigV4AuthEnabled)
 	items = appendStr(items, "signout_redirect_url", i.cfg.Auth.SignoutRedirectUrl)
 	items = appendBool(items, "oauth_auto_login", i.cfg.Auth.OauthAutoLogin)
 	config["auth"] = items
@@ -503,6 +515,26 @@ func (i *GrafanaIni) cfgAuthLdap(config map[string][]string) map[string][]string
 	items = appendBool(items, "allow_sign_up", i.cfg.AuthLdap.AllowSignUp)
 	items = appendStr(items, "config_file", i.cfg.AuthLdap.ConfigFile)
 	config["auth.ldap"] = items
+
+	return config
+}
+
+func (i *GrafanaIni) cfgAuthOkta(config map[string][]string) map[string][]string {
+	var items []string
+	items = appendBool(items, "enabled", i.cfg.AuthOkta.Enabled)
+	items = appendStr(items, "name", i.cfg.AuthOkta.Name)
+	items = appendBool(items, "allow_sign_up", i.cfg.AuthOkta.AllowSignUp)
+	items = appendStr(items, "client_id", i.cfg.AuthOkta.ClientId)
+	items = appendStr(items, "client_secret", i.cfg.AuthOkta.ClientSecret)
+	items = appendStr(items, "scopes", i.cfg.AuthOkta.Scopes)
+	items = appendStr(items, "auth_url", i.cfg.AuthOkta.AuthUrl)
+	items = appendStr(items, "token_url", i.cfg.AuthOkta.TokenUrl)
+	items = appendStr(items, "api_url", i.cfg.AuthOkta.ApiUrl)
+	items = appendStr(items, "allowed_domains", i.cfg.AuthOkta.AllowedDomains)
+	items = appendStr(items, "allowed_groups", i.cfg.AuthOkta.AllowedGroups)
+	items = appendStr(items, "role_attribute_path", i.cfg.AuthOkta.RoleAttributePath)
+	items = appendBool(items, "role_attribute_strict", i.cfg.AuthOkta.RoleAttributeStrict)
+	config["auth.okta"] = items
 
 	return config
 }
@@ -635,6 +667,18 @@ func (i *GrafanaIni) cfgAlerting(config map[string][]string) map[string][]string
 	items = appendInt(items, "notification_timeout_seconds", i.cfg.Alerting.NotificationTimeoutSeconds)
 	items = appendInt(items, "max_attempts", i.cfg.Alerting.MaxAttempts)
 	config["alerting"] = items
+
+	return config
+}
+
+func (i *GrafanaIni) cfgUnifiedAlerting(config map[string][]string) map[string][]string {
+	var items []string
+	items = appendBool(items, "enabled", i.cfg.UnifiedAlerting.Enabled)
+	items = appendBool(items, "execute_alerts", i.cfg.UnifiedAlerting.ExecuteAlerts)
+	items = appendStr(items, "evaluation_timeout", i.cfg.UnifiedAlerting.EvaluationTimeout)
+	items = appendInt(items, "max_attempts", i.cfg.UnifiedAlerting.MaxAttempts)
+	items = appendStr(items, "min_interval", i.cfg.UnifiedAlerting.MinInterval)
+	config["unified_alerting"] = items
 
 	return config
 }

@@ -13,22 +13,21 @@ There are two options for this procedure, through OLM, or manually running kubec
 First of all we would love to have **you** as a contributor.
 If you want to setup a local development environment we have written a [small guide](./develop.md)
 
-### Minikube deployment
-
-Follow this documentation [Deploying the Grafana operator in minikube](./minikube.md)
-
 ### Kustomize
+
+The default kustomization file always points on latest. You can easily create your own version and point it to a tagged version.
+This is what we suggest for production, latests will follow the master branch and all changes that happens in it.
 
 Install using kustomize built in to kubectl.
 
 ```shell
-kubectl apply -k config/install/
+kubectl apply -k deploy/manifests/
 ```
 
 Or using the kustomize cli.
 
 ```shell
-kustomize build config/install |kubectl apply -f -
+kustomize build deploy/manifests |kubectl apply -f -
 ```
 
 #### Operator metrics
@@ -90,6 +89,15 @@ The operator accepts a number of flags that can be passed in the `args` section 
   * `--zap-level=1`: show all Info level logs
 
 See `deploy/operator.yaml` for an example.
+
+The Grafana image URL and tag, and Grafana Plugins Init container image and tag can also be overridden using environment
+variables - to support deployment through OLM:
+
+* `GRAFANA_IMAGE_URL`: overrides the Grafana tag. See `controller_config.go` for default.
+* `GRAFANA_IMAGE_TAG`: overrides the Grafana tag. See `controller_config.go` for default.
+* `GRAFANA_PLUGINS_INIT_CONTAINER_IMAGE_URL`: overrides the Grafana Plugins Init Container image, defaults
+  to `quay.io/integreatly/grafana_plugins_init`.
+* `GRAFANA_PLUGINS_INIT_CONTAINER_IMAGE_TAG`: overrides the Grafana Plugins Init Container tag, defaults to `0.0.3`.
 
 ## Deploying Grafana
 

@@ -38,7 +38,7 @@ spec:
               baseImage:
                 type: string
               client:
-                description: Grafana API client settings
+                description: GrafanaClient contains the Grafana API client settings
                 properties:
                   preferService:
                     nullable: true
@@ -379,6 +379,8 @@ spec:
                     type: object
                   dashboards:
                     properties:
+                      default_home_dashboard_path:
+                        type: string
                       versions_to_keep:
                         nullable: true
                         type: integer
@@ -699,6 +701,20 @@ spec:
                       snapshot_remove_expired:
                         nullable: true
                         type: boolean
+                    type: object
+                  unified_alerting:
+                    properties:
+                      enabled:
+                        nullable: true
+                        type: boolean
+                      evaluation_timeout:
+                        type: string
+                      execute_alerts:
+                        type: boolean
+                      max_attempts:
+                        type: integer
+                      min_interval:
+                        type: string
                     type: object
                   users:
                     properties:
@@ -4383,11 +4399,13 @@ spec:
                     type: boolean
                   httpProxy:
                     description: GrafanaHttpProxy provides a means to configure the
-                      Grafana deployment to use a HTTP(S) proxy when making requests
+                      Grafana deployment to use an HTTP(S) proxy when making requests
                       and resolving plugins.
                     properties:
                       enabled:
                         type: boolean
+                      secureUrl:
+                        type: string
                       url:
                         type: string
                     required:
@@ -4777,6 +4795,10 @@ spec:
                   periodSeconds:
                     format: int32
                     type: integer
+                  scheme:
+                    description: URIScheme identifies the scheme used for connection
+                      to a host for Get actions
+                    type: string
                   successThreshold:
                     format: int32
                     type: integer
@@ -4795,6 +4817,10 @@ spec:
                   periodSeconds:
                     format: int32
                     type: integer
+                  scheme:
+                    description: URIScheme identifies the scheme used for connection
+                      to a host for Get actions
+                    type: string
                   successThreshold:
                     format: int32
                     type: integer
@@ -4945,8 +4971,8 @@ spec:
             properties:
               dashboards:
                 items:
-                  description: Used to keep a dashboard reference without having access
-                    to the dashboard struct itself
+                  description: GrafanaDashboardRef is used to keep a dashboard reference
+                    without having access to the dashboard struct itself
                   properties:
                     folderId:
                       format: int64

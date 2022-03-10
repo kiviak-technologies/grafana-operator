@@ -12,6 +12,8 @@ Resource Types:
 
 - [GrafanaDataSource](#grafanadatasource)
 
+- [GrafanaNotificationChannel](#grafananotificationchannel)
+
 - [Grafana](#grafana)
 
 
@@ -88,13 +90,6 @@ GrafanaDashboardSpec defines the desired state of GrafanaDashboard
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>json</b></td>
-        <td>string</td>
-        <td>
-          INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run "make" to regenerate code after modifying this file<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#grafanadashboardspecconfigmapref">configMapRef</a></b></td>
         <td>object</td>
         <td>
@@ -118,6 +113,13 @@ GrafanaDashboardSpec defines the desired state of GrafanaDashboard
       </tr><tr>
         <td><b><a href="#grafanadashboardspecgrafanacom">grafanaCom</a></b></td>
         <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>json</b></td>
+        <td>string</td>
         <td>
           <br/>
         </td>
@@ -403,13 +405,6 @@ GrafanaDataSourceSpec defines the desired state of GrafanaDataSource
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>access</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
@@ -424,12 +419,12 @@ GrafanaDataSourceSpec defines the desired state of GrafanaDataSource
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>url</b></td>
+        <td><b>access</b></td>
         <td>string</td>
         <td>
           <br/>
         </td>
-        <td>true</td>
+        <td>false</td>
       </tr><tr>
         <td><b>basicAuth</b></td>
         <td>boolean</td>
@@ -476,7 +471,7 @@ GrafanaDataSourceSpec defines the desired state of GrafanaDataSource
         <td><b><a href="#grafanadatasourcespecdatasourcesindexjsondata">jsonData</a></b></td>
         <td>object</td>
         <td>
-          The most common json options See https://grafana.com/docs/administration/provisioning/#datasources<br/>
+          GrafanaDataSourceJsonData contains the most common json options See https://grafana.com/docs/administration/provisioning/#datasources<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -497,11 +492,18 @@ GrafanaDataSourceSpec defines the desired state of GrafanaDataSource
         <td><b><a href="#grafanadatasourcespecdatasourcesindexsecurejsondata">secureJsonData</a></b></td>
         <td>object</td>
         <td>
-          The most common secure json options See https://grafana.com/docs/administration/provisioning/#datasources<br/>
+          GrafanaDataSourceSecureJsonData contains the most common secure json options See https://grafana.com/docs/administration/provisioning/#datasources<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b>uid</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>url</b></td>
         <td>string</td>
         <td>
           <br/>
@@ -537,7 +539,7 @@ GrafanaDataSourceSpec defines the desired state of GrafanaDataSource
 
 
 
-The most common json options See https://grafana.com/docs/administration/provisioning/#datasources
+GrafanaDataSourceJsonData contains the most common json options See https://grafana.com/docs/administration/provisioning/#datasources
 
 <table>
     <thead>
@@ -552,7 +554,21 @@ The most common json options See https://grafana.com/docs/administration/provisi
         <td><b>addCorsHeader</b></td>
         <td>boolean</td>
         <td>
-           Useful fields for clickhouse datasource  See https://github.com/Vertamedia/clickhouse-grafana/tree/master/dist/README.md#configure-the-datasource-with-provisioning  See https://github.com/Vertamedia/clickhouse-grafana/tree/master/src/datasource.ts#L44<br/>
+          Useful fields for clickhouse datasource See https://github.com/Vertamedia/clickhouse-grafana/tree/master/dist/README.md#configure-the-datasource-with-provisioning See https://github.com/Vertamedia/clickhouse-grafana/tree/master/src/datasource.ts#L44<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>allowInfraExplore</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>apiToken</b></td>
+        <td>string</td>
+        <td>
+          <br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -683,9 +699,23 @@ The most common json options See https://grafana.com/docs/administration/provisi
         <td>false</td>
       </tr><tr>
         <td><b>esVersion</b></td>
-        <td>integer</td>
+        <td>string</td>
         <td>
           <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#grafanadatasourcespecdatasourcesindexjsondataexemplartraceiddestinationsindex">exemplarTraceIdDestinations</a></b></td>
+        <td>[]object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>githubUrl</b></td>
+        <td>string</td>
+        <td>
+          Fields for Github data sources<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -773,6 +803,13 @@ The most common json options See https://grafana.com/docs/administration/provisi
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>implementation</b></td>
+        <td>string</td>
+        <td>
+          Fields for Alertmanager data sources<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>interval</b></td>
         <td>string</td>
         <td>
@@ -843,6 +880,13 @@ The most common json options See https://grafana.com/docs/administration/provisi
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b><a href="#grafanadatasourcespecdatasourcesindexjsondatanodegraph">nodeGraph</a></b></td>
+        <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>oauthPassThru</b></td>
         <td>boolean</td>
         <td>
@@ -857,8 +901,85 @@ The most common json options See https://grafana.com/docs/administration/provisi
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>port</b></td>
+        <td>integer</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>postgresVersion</b></td>
         <td>integer</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#grafanadatasourcespecdatasourcesindexjsondatasearch">search</a></b></td>
+        <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>server</b></td>
+        <td>string</td>
+        <td>
+          Fields for Grafana Clickhouse data sources<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#grafanadatasourcespecdatasourcesindexjsondataservicemap">serviceMap</a></b></td>
+        <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>showOffline</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4AssumeRoleArn</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4Auth</b></td>
+        <td>boolean</td>
+        <td>
+          Fields for AWS Prometheus data sources<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4AuthType</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4ExternalId</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4Profile</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4Region</b></td>
+        <td>string</td>
         <td>
           <br/>
         </td>
@@ -903,6 +1024,13 @@ The most common json options See https://grafana.com/docs/administration/provisi
         <td>boolean</td>
         <td>
           <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>timezone</b></td>
+        <td>string</td>
+        <td>
+          Extra field for MySQL data source<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -955,7 +1083,21 @@ The most common json options See https://grafana.com/docs/administration/provisi
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>url</b></td>
+        <td>string</td>
+        <td>
+          Fields for Instana data sources See https://github.com/instana/instana-grafana-datasource/blob/main/provisioning/datasources/datasource.yml<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>usePOST</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>useProxy</b></td>
         <td>boolean</td>
         <td>
           <br/>
@@ -964,6 +1106,13 @@ The most common json options See https://grafana.com/docs/administration/provisi
       </tr><tr>
         <td><b>useYandexCloudAuthorization</b></td>
         <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
         <td>
           <br/>
         </td>
@@ -1041,6 +1190,135 @@ The most common json options See https://grafana.com/docs/administration/provisi
 </table>
 
 
+### GrafanaDataSource.spec.datasources[index].jsonData.exemplarTraceIdDestinations[index]
+<sup><sup>[↩ Parent](#grafanadatasourcespecdatasourcesindexjsondata)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>datasourceUid</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>url</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>urlDisplayLabel</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### GrafanaDataSource.spec.datasources[index].jsonData.nodeGraph
+<sup><sup>[↩ Parent](#grafanadatasourcespecdatasourcesindexjsondata)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>enabled</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### GrafanaDataSource.spec.datasources[index].jsonData.search
+<sup><sup>[↩ Parent](#grafanadatasourcespecdatasourcesindexjsondata)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>hide</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### GrafanaDataSource.spec.datasources[index].jsonData.serviceMap
+<sup><sup>[↩ Parent](#grafanadatasourcespecdatasourcesindexjsondata)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>datasourceUid</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
 ### GrafanaDataSource.spec.datasources[index].jsonData.tracesToLogs
 <sup><sup>[↩ Parent](#grafanadatasourcespecdatasourcesindexjsondata)</sup></sup>
 
@@ -1060,6 +1338,27 @@ Fields for tracing data sources
     <tbody><tr>
         <td><b>datasourceUid</b></td>
         <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>filterBySpanID</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>filterByTraceID</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>lokiSearch</b></td>
+        <td>boolean</td>
         <td>
           <br/>
         </td>
@@ -1094,7 +1393,7 @@ Fields for tracing data sources
 
 
 
-The most common secure json options See https://grafana.com/docs/administration/provisioning/#datasources
+GrafanaDataSourceSecureJsonData contains the most common secure json options See https://grafana.com/docs/administration/provisioning/#datasources
 
 <table>
     <thead>
@@ -1110,6 +1409,13 @@ The most common secure json options See https://grafana.com/docs/administration/
         <td>string</td>
         <td>
           <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>accessToken</b></td>
+        <td>string</td>
+        <td>
+          Fields for Github data sources<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -1225,6 +1531,20 @@ The most common secure json options See https://grafana.com/docs/administration/
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>sigV4AccessKey</b></td>
+        <td>string</td>
+        <td>
+          Fields for AWS data sources<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>sigV4SecretKey</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>tlsCACert</b></td>
         <td>string</td>
         <td>
@@ -1281,6 +1601,148 @@ The most common secure json options See https://grafana.com/docs/administration/
         <td>true</td>
       </tr><tr>
         <td><b>phase</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+## GrafanaNotificationChannel
+<sup><sup>[↩ Parent](#integreatlyorgv1alpha1 )</sup></sup>
+
+
+
+
+
+
+GrafanaNotificationChannel is the Schema for the GrafanaNotificationChannels API
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+      <td><b>apiVersion</b></td>
+      <td>string</td>
+      <td>integreatly.org/v1alpha1</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b>kind</b></td>
+      <td>string</td>
+      <td>GrafanaNotificationChannel</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#objectmeta-v1-meta">metadata</a></b></td>
+      <td>object</td>
+      <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
+      <td>true</td>
+      </tr><tr>
+        <td><b><a href="#grafananotificationchannelspec">spec</a></b></td>
+        <td>object</td>
+        <td>
+          GrafanaNotificationChannelSpec defines the desired state of GrafanaNotificationChannel<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#grafananotificationchannelstatus">status</a></b></td>
+        <td>object</td>
+        <td>
+          GrafanaNotificationChannelStatus defines the observed state of GrafanaNotificationChannel<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### GrafanaNotificationChannel.spec
+<sup><sup>[↩ Parent](#grafananotificationchannel)</sup></sup>
+
+
+
+GrafanaNotificationChannelSpec defines the desired state of GrafanaNotificationChannel
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>json</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### GrafanaNotificationChannel.status
+<sup><sup>[↩ Parent](#grafananotificationchannel)</sup></sup>
+
+
+
+GrafanaNotificationChannelStatus defines the observed state of GrafanaNotificationChannel
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>hash</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>id</b></td>
+        <td>integer</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>message</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>phase</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>uid</b></td>
         <td>string</td>
         <td>
           <br/>
@@ -1377,7 +1839,7 @@ Grafana is the Schema for the grafanas API
         <td><b><a href="#grafanaspecclient">client</a></b></td>
         <td>object</td>
         <td>
-          Grafana API client settings<br/>
+          GrafanaClient contains the Grafana API client settings<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -1773,6 +2235,13 @@ GrafanaConfig is the configuration for grafana
         <td>false</td>
       </tr><tr>
         <td><b><a href="#grafanaspecconfigsnapshots">snapshots</a></b></td>
+        <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#grafanaspecconfigunified_alerting">unified_alerting</a></b></td>
         <td>object</td>
         <td>
           <br/>
@@ -2947,6 +3416,13 @@ GrafanaConfig is the configuration for grafana
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>default_home_dashboard_path</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>versions_to_keep</b></td>
         <td>integer</td>
         <td>
@@ -4166,6 +4642,61 @@ GrafanaConfig is the configuration for grafana
 </table>
 
 
+### Grafana.spec.config.unified_alerting
+<sup><sup>[↩ Parent](#grafanaspecconfig)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>enabled</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>evaluation_timeout</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>execute_alerts</b></td>
+        <td>boolean</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>max_attempts</b></td>
+        <td>integer</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>min_interval</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
 ### Grafana.spec.config.users
 <sup><sup>[↩ Parent](#grafanaspecconfig)</sup></sup>
 
@@ -4261,7 +4792,7 @@ GrafanaConfig is the configuration for grafana
 
 
 
-Grafana API client settings
+GrafanaClient contains the Grafana API client settings
 
 <table>
     <thead>
@@ -6674,7 +7205,7 @@ GrafanaDeployment provides a means to configure the deployment
         <td><b><a href="#grafanaspecdeploymenthttpproxy">httpProxy</a></b></td>
         <td>object</td>
         <td>
-          GrafanaHttpProxy provides a means to configure the Grafana deployment to use a HTTP(S) proxy when making requests and resolving plugins.<br/>
+          GrafanaHttpProxy provides a means to configure the Grafana deployment to use an HTTP(S) proxy when making requests and resolving plugins.<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -11188,7 +11719,7 @@ VsphereVolume represents a vSphere volume attached and mounted on kubelets host 
 
 
 
-GrafanaHttpProxy provides a means to configure the Grafana deployment to use a HTTP(S) proxy when making requests and resolving plugins.
+GrafanaHttpProxy provides a means to configure the Grafana deployment to use an HTTP(S) proxy when making requests and resolving plugins.
 
 <table>
     <thead>
@@ -11206,6 +11737,13 @@ GrafanaHttpProxy provides a means to configure the Grafana deployment to use a H
           <br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>secureUrl</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
       </tr><tr>
         <td><b>url</b></td>
         <td>string</td>
@@ -11875,6 +12413,13 @@ A label selector requirement is a selector that contains values, a key, and an o
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>scheme</b></td>
+        <td>string</td>
+        <td>
+          URIScheme identifies the scheme used for connection to a host for Get actions<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>successThreshold</b></td>
         <td>integer</td>
         <td>
@@ -11937,6 +12482,13 @@ A label selector requirement is a selector that contains values, a key, and an o
           <br/>
           <br/>
             <i>Format</i>: int32<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>scheme</b></td>
+        <td>string</td>
+        <td>
+          URIScheme identifies the scheme used for connection to a host for Get actions<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -12267,7 +12819,7 @@ GrafanaStatus defines the observed state of Grafana
 
 
 
-Used to keep a dashboard reference without having access to the dashboard struct itself
+GrafanaDashboardRef is used to keep a dashboard reference without having access to the dashboard struct itself
 
 <table>
     <thead>

@@ -25,11 +25,10 @@ import (
 	"os"
 
 	"github.com/go-logr/logr"
-	grafanav1alpha1 "github.com/integr8ly/grafana-operator/api/integreatly/v1alpha1"
-	integreatlyorgv1alpha1 "github.com/integr8ly/grafana-operator/api/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/controllers/common"
-	"github.com/integr8ly/grafana-operator/controllers/config"
-	"github.com/integr8ly/grafana-operator/controllers/constants"
+	grafanav1alpha1 "github.com/grafana-operator/grafana-operator/v4/api/integreatly/v1alpha1"
+	"github.com/grafana-operator/grafana-operator/v4/controllers/common"
+	"github.com/grafana-operator/grafana-operator/v4/controllers/config"
+	"github.com/grafana-operator/grafana-operator/v4/controllers/constants"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -201,7 +200,7 @@ func SetupWithManager(mgr ctrl.Manager, r reconcile.Reconciler, namespace string
 		}
 	}()
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&integreatlyorgv1alpha1.GrafanaDashboard{}).
+		For(&grafanav1alpha1.GrafanaDashboard{}).
 		Complete(r)
 }
 
@@ -219,7 +218,7 @@ func inNamespace(namespaceDashboards *grafanav1alpha1.GrafanaDashboardList, item
 }
 
 // Returns the hash of a dashboard if it is known
-func findHash(knownDashboards []*integreatlyorgv1alpha1.GrafanaDashboardRef, item *grafanav1alpha1.GrafanaDashboard) string {
+func findHash(knownDashboards []*grafanav1alpha1.GrafanaDashboardRef, item *grafanav1alpha1.GrafanaDashboard) string {
 	for _, d := range knownDashboards {
 		if item.Name == d.Name && item.Namespace == d.Namespace {
 			return d.Hash
@@ -229,7 +228,7 @@ func findHash(knownDashboards []*integreatlyorgv1alpha1.GrafanaDashboardRef, ite
 }
 
 // Returns the UID of a dashboard if it is known
-func findUid(knownDashboards []*integreatlyorgv1alpha1.GrafanaDashboardRef, item *grafanav1alpha1.GrafanaDashboard) string {
+func findUid(knownDashboards []*grafanav1alpha1.GrafanaDashboardRef, item *grafanav1alpha1.GrafanaDashboard) string {
 	for _, d := range knownDashboards {
 		if item.Name == d.Name && item.Namespace == d.Namespace {
 			return d.UID
@@ -470,6 +469,6 @@ func (r *GrafanaDashboardReconciler) manageError(dashboard *grafanav1alpha1.Graf
 
 func (r *GrafanaDashboardReconciler) SetupWithManager(mgr manager.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&integreatlyorgv1alpha1.GrafanaDashboard{}).
+		For(&grafanav1alpha1.GrafanaDashboard{}).
 		Complete(r)
 }

@@ -30,6 +30,7 @@ rules:
   - create
   - get
   - list
+  - patch
   - watch
 - apiGroups:
   - ""
@@ -96,6 +97,26 @@ rules:
 - apiGroups:
   - integreatly.org
   resources:
+  - grafananotificationchannels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - integreatly.org
+  resources:
+  - grafananotificationchannels/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - integreatly.org
+  resources:
   - grafanas
   - grafanas/finalizers
   verbs:
@@ -130,6 +151,7 @@ rules:
   - route.openshift.io
   resources:
   - routes
+  - routes/custom-host
   verbs:
   - create
   - delete

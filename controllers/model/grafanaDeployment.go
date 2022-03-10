@@ -3,10 +3,9 @@ package model
 import (
 	"fmt"
 
-	"github.com/integr8ly/grafana-operator/controllers/constants"
-
-	"github.com/integr8ly/grafana-operator/api/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/controllers/config"
+	"github.com/grafana-operator/grafana-operator/v4/api/integreatly/v1alpha1"
+	"github.com/grafana-operator/grafana-operator/v4/controllers/config"
+	"github.com/grafana-operator/grafana-operator/v4/controllers/constants"
 	v1 "k8s.io/api/apps/v1"
 	v13 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -185,6 +184,27 @@ func getVolumes(cr *v1alpha1.Grafana) []v13.Volume { // nolint
 	var volumes []v13.Volume // nolint
 	var volumeOptional = true
 
+	volumes = append(volumes, v13.Volume{
+		Name: constants.GrafanaProvisionPluginVolumeName,
+		VolumeSource: v13.VolumeSource{
+			EmptyDir: &v13.EmptyDirVolumeSource{},
+		},
+	})
+
+	volumes = append(volumes, v13.Volume{
+		Name: constants.GrafanaProvisionDashboardVolumeName,
+		VolumeSource: v13.VolumeSource{
+			EmptyDir: &v13.EmptyDirVolumeSource{},
+		},
+	})
+
+	volumes = append(volumes, v13.Volume{
+		Name: constants.GrafanaProvisionNotifierVolumeName,
+		VolumeSource: v13.VolumeSource{
+			EmptyDir: &v13.EmptyDirVolumeSource{},
+		},
+	})
+
 	// Volume to mount the config file from a config map
 	volumes = append(volumes, v13.Volume{
 		Name: constants.GrafanaConfigName,
@@ -225,12 +245,30 @@ func getVolumes(cr *v1alpha1.Grafana) []v13.Volume { // nolint
 	}
 
 	// Volume to store the plugins
-	volumes = append(volumes, v13.Volume{
-		Name: constants.GrafanaPluginsVolumeName,
-		VolumeSource: v13.VolumeSource{
-			EmptyDir: &v13.EmptyDirVolumeSource{},
-		},
-	})
+	appendIfContainsPlugin := func() bool {
+		var foundGrafanaPluginsPath bool
+		if cr.Spec.Deployment != nil {
+			for _, item := range cr.Spec.Deployment.ExtraVolumeMounts {
+				if item.MountPath == config.GrafanaPluginsPath {
+					foundGrafanaPluginsPath = true
+					break
+				}
+			}
+		}
+
+		if cr.Spec.Deployment != nil {
+			volumes = append(volumes, cr.Spec.Deployment.ExtraVolumes...)
+		}
+		return foundGrafanaPluginsPath
+	}
+	if !appendIfContainsPlugin() {
+		volumes = append(volumes, v13.Volume{
+			Name: constants.GrafanaPluginsVolumeName,
+			VolumeSource: v13.VolumeSource{
+				EmptyDir: &v13.EmptyDirVolumeSource{},
+			},
+		})
+	}
 
 	// Volume to store the datasources
 	volumes = append(volumes, v13.Volume{
@@ -326,17 +364,50 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []v13.VolumeMount {
 
 	mounts = append(mounts, v13.VolumeMount{
 		Name:      constants.GrafanaDataVolumeName,
-		MountPath: "/var/lib/grafana",
+		MountPath: config.GrafanaDataPath,
+	})
+
+	appendIfContainsPlugin := func() bool {
+		var foundGrafanaPluginsPath bool
+		if cr.Spec.Deployment != nil {
+			for _, item := range cr.Spec.Deployment.ExtraVolumeMounts {
+				if item.MountPath == config.GrafanaPluginsPath {
+					foundGrafanaPluginsPath = true
+					break
+				}
+			}
+		}
+
+		if cr.Spec.Deployment != nil {
+			mounts = append(mounts, cr.Spec.Deployment.ExtraVolumeMounts...)
+		}
+		return foundGrafanaPluginsPath
+	}
+	if !appendIfContainsPlugin() {
+		mounts = append(mounts, v13.VolumeMount{
+			Name:      constants.GrafanaPluginsVolumeName,
+			MountPath: config.GrafanaPluginsPath,
+		})
+	}
+
+	mounts = append(mounts, v13.VolumeMount{
+		Name:      constants.GrafanaProvisionPluginVolumeName,
+		MountPath: config.GrafanaProvisioningPluginsPath,
 	})
 
 	mounts = append(mounts, v13.VolumeMount{
-		Name:      constants.GrafanaPluginsVolumeName,
-		MountPath: "/var/lib/grafana/plugins",
+		Name:      constants.GrafanaProvisionDashboardVolumeName,
+		MountPath: config.GrafanaProvisioningDashboardsPath,
+	})
+
+	mounts = append(mounts, v13.VolumeMount{
+		Name:      constants.GrafanaProvisionNotifierVolumeName,
+		MountPath: config.GrafanaProvisioningNotifiersPath,
 	})
 
 	mounts = append(mounts, v13.VolumeMount{
 		Name:      constants.GrafanaLogsVolumeName,
-		MountPath: "/var/log/grafana",
+		MountPath: config.GrafanaLogsPath,
 	})
 
 	mounts = append(mounts, v13.VolumeMount{
@@ -364,61 +435,91 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []v13.VolumeMount {
 }
 
 func getLivenessProbe(cr *v1alpha1.Grafana, delay, timeout, failure int32) *v13.Probe {
-	if cr.Spec.LivenessProbeSpec != nil {
-		return &v13.Probe{
-			Handler: v13.Handler{
-				HTTPGet: &v13.HTTPGetAction{
-					Path: constants.GrafanaHealthEndpoint,
-					Port: intstr.FromInt(GetGrafanaPort(cr)),
-				},
-			},
-			InitialDelaySeconds: cr.Spec.LivenessProbeSpec.InitialDelaySeconds,
-			TimeoutSeconds:      cr.Spec.LivenessProbeSpec.TimeOutSeconds,
-			PeriodSeconds:       cr.Spec.LivenessProbeSpec.PeriodSeconds,
-			SuccessThreshold:    cr.Spec.LivenessProbeSpec.SuccessThreshold,
-			FailureThreshold:    cr.Spec.LivenessProbeSpec.FailureThreshold,
-		}
+	var period int32 = 10
+	var success int32 = 1
+	var scheme = v13.URISchemeHTTP
+
+	if cr.Spec.LivenessProbeSpec != nil && cr.Spec.LivenessProbeSpec.InitialDelaySeconds != nil {
+		delay = *cr.Spec.LivenessProbeSpec.InitialDelaySeconds
+	}
+
+	if cr.Spec.LivenessProbeSpec != nil && cr.Spec.LivenessProbeSpec.TimeOutSeconds != nil {
+		timeout = *cr.Spec.LivenessProbeSpec.TimeOutSeconds
+	}
+
+	if cr.Spec.LivenessProbeSpec != nil && cr.Spec.LivenessProbeSpec.FailureThreshold != nil {
+		failure = *cr.Spec.LivenessProbeSpec.FailureThreshold
+	}
+
+	if cr.Spec.LivenessProbeSpec != nil && cr.Spec.LivenessProbeSpec.PeriodSeconds != nil {
+		period = *cr.Spec.LivenessProbeSpec.PeriodSeconds
+	}
+
+	if cr.Spec.LivenessProbeSpec != nil && cr.Spec.LivenessProbeSpec.SuccessThreshold != nil {
+		period = *cr.Spec.LivenessProbeSpec.SuccessThreshold
+	}
+
+	if cr.Spec.LivenessProbeSpec != nil && cr.Spec.LivenessProbeSpec.Scheme != "" {
+		scheme = cr.Spec.LivenessProbeSpec.Scheme
 	}
 
 	return &v13.Probe{
 		Handler: v13.Handler{
 			HTTPGet: &v13.HTTPGetAction{
-				Path: constants.GrafanaHealthEndpoint,
-				Port: intstr.FromInt(GetGrafanaPort(cr)),
+				Path:   constants.GrafanaHealthEndpoint,
+				Port:   intstr.FromInt(GetGrafanaPort(cr)),
+				Scheme: scheme,
 			},
 		},
 		InitialDelaySeconds: delay,
 		TimeoutSeconds:      timeout,
+		PeriodSeconds:       period,
+		SuccessThreshold:    success,
 		FailureThreshold:    failure,
 	}
 }
 
 func getReadinessProbe(cr *v1alpha1.Grafana, delay, timeout, failure int32) *v13.Probe {
-	if cr.Spec.ReadinessProbeSpec != nil {
-		return &v13.Probe{
-			Handler: v13.Handler{
-				HTTPGet: &v13.HTTPGetAction{
-					Path: constants.GrafanaHealthEndpoint,
-					Port: intstr.FromInt(GetGrafanaPort(cr)),
-				},
-			},
-			InitialDelaySeconds: cr.Spec.ReadinessProbeSpec.InitialDelaySeconds,
-			TimeoutSeconds:      cr.Spec.ReadinessProbeSpec.TimeOutSeconds,
-			PeriodSeconds:       cr.Spec.ReadinessProbeSpec.PeriodSeconds,
-			SuccessThreshold:    cr.Spec.ReadinessProbeSpec.SuccessThreshold,
-			FailureThreshold:    cr.Spec.ReadinessProbeSpec.FailureThreshold,
-		}
+	var period int32 = 10
+	var success int32 = 1
+	var scheme = v13.URISchemeHTTP
+
+	if cr.Spec.ReadinessProbeSpec != nil && cr.Spec.ReadinessProbeSpec.InitialDelaySeconds != nil {
+		delay = *cr.Spec.ReadinessProbeSpec.InitialDelaySeconds
+	}
+
+	if cr.Spec.ReadinessProbeSpec != nil && cr.Spec.ReadinessProbeSpec.TimeOutSeconds != nil {
+		timeout = *cr.Spec.ReadinessProbeSpec.TimeOutSeconds
+	}
+
+	if cr.Spec.ReadinessProbeSpec != nil && cr.Spec.ReadinessProbeSpec.FailureThreshold != nil {
+		failure = *cr.Spec.ReadinessProbeSpec.FailureThreshold
+	}
+
+	if cr.Spec.ReadinessProbeSpec != nil && cr.Spec.ReadinessProbeSpec.PeriodSeconds != nil {
+		period = *cr.Spec.ReadinessProbeSpec.PeriodSeconds
+	}
+
+	if cr.Spec.ReadinessProbeSpec != nil && cr.Spec.ReadinessProbeSpec.SuccessThreshold != nil {
+		period = *cr.Spec.ReadinessProbeSpec.SuccessThreshold
+	}
+
+	if cr.Spec.ReadinessProbeSpec != nil && cr.Spec.ReadinessProbeSpec.Scheme != "" {
+		scheme = cr.Spec.ReadinessProbeSpec.Scheme
 	}
 
 	return &v13.Probe{
 		Handler: v13.Handler{
 			HTTPGet: &v13.HTTPGetAction{
-				Path: constants.GrafanaHealthEndpoint,
-				Port: intstr.FromInt(GetGrafanaPort(cr)),
+				Path:   constants.GrafanaHealthEndpoint,
+				Port:   intstr.FromInt(GetGrafanaPort(cr)),
+				Scheme: scheme,
 			},
 		},
 		InitialDelaySeconds: delay,
 		TimeoutSeconds:      timeout,
+		PeriodSeconds:       period,
+		SuccessThreshold:    success,
 		FailureThreshold:    failure,
 	}
 }
@@ -451,6 +552,12 @@ func getContainers(cr *v1alpha1.Grafana, configHash, dsHash string) []v13.Contai
 			Name:  "HTTP_PROXY",
 			Value: cr.Spec.Deployment.HttpProxy.URL,
 		})
+		if cr.Spec.Deployment.HttpProxy.SecureURL != "" {
+			envVars = append(envVars, v13.EnvVar{
+				Name:  "HTTPS_PROXY",
+				Value: cr.Spec.Deployment.HttpProxy.SecureURL,
+			})
+		}
 	}
 
 	if cr.Spec.Deployment != nil && cr.Spec.Deployment.Env != nil {
@@ -541,6 +648,22 @@ func getInitContainers(cr *v1alpha1.Grafana, plugins string) []v13.Container {
 			Name:  "HTTP_PROXY",
 			Value: cr.Spec.Deployment.HttpProxy.URL,
 		})
+		if cr.Spec.Deployment.HttpProxy.SecureURL != "" {
+			envVars = append(envVars, v13.EnvVar{
+				Name:  "HTTPS_PROXY",
+				Value: cr.Spec.Deployment.HttpProxy.SecureURL,
+			})
+		}
+	}
+
+	var volumeName = constants.GrafanaPluginsVolumeName
+
+	if cr.Spec.Deployment != nil {
+		for _, item := range cr.Spec.Deployment.ExtraVolumeMounts {
+			if item.MountPath == config.GrafanaPluginsPath {
+				volumeName = item.Name
+			}
+		}
 	}
 
 	return []v13.Container{
@@ -551,7 +674,7 @@ func getInitContainers(cr *v1alpha1.Grafana, plugins string) []v13.Container {
 			Resources: getInitResources(cr),
 			VolumeMounts: []v13.VolumeMount{
 				{
-					Name:      constants.GrafanaPluginsVolumeName,
+					Name:      volumeName,
 					ReadOnly:  false,
 					MountPath: "/opt/plugins",
 				},

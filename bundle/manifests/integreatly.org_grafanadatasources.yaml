@@ -20,10 +20,14 @@ spec:
         description: GrafanaDataSource is the Schema for the grafanadatasources API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -48,11 +52,18 @@ spec:
                     isDefault:
                       type: boolean
                     jsonData:
-                      description: The most common json options See https://grafana.com/docs/administration/provisioning/#datasources
+                      description: GrafanaDataSourceJsonData contains the most common
+                        json options See https://grafana.com/docs/administration/provisioning/#datasources
                       properties:
                         addCorsHeader:
-                          description: ' Useful fields for clickhouse datasource  See https://github.com/Vertamedia/clickhouse-grafana/tree/master/dist/README.md#configure-the-datasource-with-provisioning  See https://github.com/Vertamedia/clickhouse-grafana/tree/master/src/datasource.ts#L44'
+                          description: Useful fields for clickhouse datasource See
+                            https://github.com/Vertamedia/clickhouse-grafana/tree/master/dist/README.md#configure-the-datasource-with-provisioning
+                            See https://github.com/Vertamedia/clickhouse-grafana/tree/master/src/datasource.ts#L44
                           type: boolean
+                        allowInfraExplore:
+                          type: boolean
+                        apiToken:
+                          type: string
                         appInsightsAppId:
                           description: Fields for Azure data sources
                           type: string
@@ -103,7 +114,23 @@ spec:
                         encrypt:
                           type: string
                         esVersion:
-                          type: integer
+                          type: string
+                        exemplarTraceIdDestinations:
+                          items:
+                            properties:
+                              datasourceUid:
+                                type: string
+                              name:
+                                type: string
+                              url:
+                                type: string
+                              urlDisplayLabel:
+                                type: string
+                            type: object
+                          type: array
+                        githubUrl:
+                          description: Fields for Github data sources
+                          type: string
                         graphiteVersion:
                           type: string
                         httpHeaderName1:
@@ -130,6 +157,9 @@ spec:
                         httpMode:
                           description: Fields for InfluxDB data sources
                           type: string
+                        implementation:
+                          description: Fields for Alertmanager data sources
+                          type: string
                         interval:
                           type: string
                         logAnalyticsClientId:
@@ -151,12 +181,42 @@ spec:
                           type: integer
                         maxOpenConns:
                           type: integer
+                        nodeGraph:
+                          properties:
+                            enabled:
+                              type: boolean
+                          type: object
                         oauthPassThru:
                           type: boolean
                         organization:
                           type: string
                         postgresVersion:
                           type: integer
+                        search:
+                          properties:
+                            hide:
+                              type: boolean
+                          type: object
+                        serviceMap:
+                          properties:
+                            datasourceUid:
+                              type: string
+                          type: object
+                        showOffline:
+                          type: boolean
+                        sigV4AssumeRoleArn:
+                          type: string
+                        sigV4Auth:
+                          description: Fields for AWS Prometheus data sources
+                          type: boolean
+                        sigV4AuthType:
+                          type: string
+                        sigV4ExternalId:
+                          type: string
+                        sigV4Profile:
+                          type: string
+                        sigV4Region:
+                          type: string
                         sslmode:
                           type: string
                         subscriptionId:
@@ -183,6 +243,12 @@ spec:
                           properties:
                             datasourceUid:
                               type: string
+                            filterBySpanID:
+                              type: boolean
+                            filterByTraceID:
+                              type: boolean
+                            lokiSearch:
+                              type: boolean
                             spanEndTimeShift:
                               type: string
                             spanStartTimeShift:
@@ -196,7 +262,12 @@ spec:
                           type: string
                         tsdbVersion:
                           type: string
+                        url:
+                          description: Fields for Instana data sources See https://github.com/instana/instana-grafana-datasource/blob/main/provisioning/datasources/datasource.yml
+                          type: string
                         usePOST:
+                          type: boolean
+                        useProxy:
                           type: boolean
                         useYandexCloudAuthorization:
                           type: boolean
@@ -214,9 +285,13 @@ spec:
                     password:
                       type: string
                     secureJsonData:
-                      description: The most common secure json options See https://grafana.com/docs/administration/provisioning/#datasources
+                      description: GrafanaDataSourceSecureJsonData contains the most
+                        common secure json options See https://grafana.com/docs/administration/provisioning/#datasources
                       properties:
                         accessKey:
+                          type: string
+                        accessToken:
+                          description: Fields for Github data sources
                           type: string
                         appInsightsApiKey:
                           type: string
@@ -253,6 +328,11 @@ spec:
                           type: string
                         secretKey:
                           type: string
+                        sigV4AccessKey:
+                          description: Fields for AWS data sources
+                          type: string
+                        sigV4SecretKey:
+                          type: string
                         tlsCACert:
                           type: string
                         tlsClientCert:
@@ -276,10 +356,8 @@ spec:
                     withCredentials:
                       type: boolean
                   required:
-                  - access
                   - name
                   - type
-                  - url
                   type: object
                 type: array
               name:

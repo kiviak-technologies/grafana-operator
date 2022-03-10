@@ -16,8 +16,8 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/go-jsonnet"
-	"github.com/integr8ly/grafana-operator/api/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/controllers/config"
+	"github.com/grafana-operator/grafana-operator/v4/api/integreatly/v1alpha1"
+	"github.com/grafana-operator/grafana-operator/v4/controllers/config"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -304,7 +304,7 @@ func (r *DashboardPipelineImpl) getLatestRevisionForGrafanaComDashboard() (int, 
 	}
 
 	if listResponse == nil || len(listResponse.Items) == 0 {
-		return 0, errors.New("List dashboard revisions request succeeded but no revisions returned")
+		return 0, errors.New("list dashboard revisions request succeeded but no revisions returned")
 	}
 
 	return r.getMaximumRevisionFromListDashboardRevisionsResponse(listResponse), nil

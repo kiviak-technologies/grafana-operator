@@ -93,8 +93,16 @@ jobs:
         with:
           go-version: "1.16"
       - name: Run test
+        shell: bash
         run: |
           make test
+      - name: Check if working tree is dirty
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+            git diff
+            echo 'run make test and commit changes'
+            exit 1
+          fi
 
   build:
     name: github super-linter
@@ -119,7 +127,7 @@ jobs:
   build-container:
     runs-on: ubuntu-latest
     env:
-      DOCKER_PLATFORMS: linux/amd64,linux/arm64
+      DOCKER_PLATFORMS: linux/amd64,linux/arm64,linux/s390x
     services:
       registry:
         image: registry:2

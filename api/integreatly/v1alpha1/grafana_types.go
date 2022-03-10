@@ -41,25 +41,27 @@ type GrafanaSpec struct {
 }
 
 type ReadinessProbeSpec struct {
-	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty"`
-	TimeOutSeconds      int32 `json:"timeoutSeconds,omitempty"`
-	PeriodSeconds       int32 `json:"periodSeconds,omitempty"`
-	SuccessThreshold    int32 `json:"successThreshold,omitempty"`
-	FailureThreshold    int32 `json:"failureThreshold,omitempty"`
+	InitialDelaySeconds *int32       `json:"initialDelaySeconds,omitempty"`
+	TimeOutSeconds      *int32       `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       *int32       `json:"periodSeconds,omitempty"`
+	SuccessThreshold    *int32       `json:"successThreshold,omitempty"`
+	FailureThreshold    *int32       `json:"failureThreshold,omitempty"`
+	Scheme              v1.URIScheme `json:"scheme,omitempty"`
 }
 type LivenessProbeSpec struct {
-	InitialDelaySeconds int32 `json:"initialDelaySeconds,omitempty"`
-	TimeOutSeconds      int32 `json:"timeoutSeconds,omitempty"`
-	PeriodSeconds       int32 `json:"periodSeconds,omitempty"`
-	SuccessThreshold    int32 `json:"successThreshold,omitempty"`
-	FailureThreshold    int32 `json:"failureThreshold,omitempty"`
+	InitialDelaySeconds *int32       `json:"initialDelaySeconds,omitempty"`
+	TimeOutSeconds      *int32       `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       *int32       `json:"periodSeconds,omitempty"`
+	SuccessThreshold    *int32       `json:"successThreshold,omitempty"`
+	FailureThreshold    *int32       `json:"failureThreshold,omitempty"`
+	Scheme              v1.URIScheme `json:"scheme,omitempty"`
 }
 
 type JsonnetConfig struct {
 	LibraryLabelSelector *metav1.LabelSelector `json:"libraryLabelSelector,omitempty"`
 }
 
-// Grafana API client settings
+// GrafanaClient contains the Grafana API client settings
 type GrafanaClient struct {
 	// +nullable
 	TimeoutSeconds *int `json:"timeout,omitempty"`
@@ -119,10 +121,11 @@ type GrafanaDeployment struct {
 }
 
 // GrafanaHttpProxy provides a means to configure the Grafana deployment
-// to use a HTTP(S) proxy when making requests and resolving plugins.
+// to use an HTTP(S) proxy when making requests and resolving plugins.
 type GrafanaHttpProxy struct {
-	Enabled bool   `json:"enabled"`
-	URL     string `json:"url,omitempty"`
+	Enabled   bool   `json:"enabled"`
+	URL       string `json:"url,omitempty"`
+	SecureURL string `json:"secureUrl,omitempty"`
 }
 
 // GrafanaIngress provides a means to configure the ingress created
@@ -177,6 +180,7 @@ type GrafanaConfig struct {
 	ExternalImageStorageGcs       *GrafanaConfigExternalImageStorageGcs       `json:"external_image_storage.gcs,omitempty" ini:"external_image_storage.gcs,omitempty"`
 	ExternalImageStorageAzureBlob *GrafanaConfigExternalImageStorageAzureBlob `json:"external_image_storage.azure_blob,omitempty" ini:"external_image_storage.azure_blob,omitempty"`
 	Alerting                      *GrafanaConfigAlerting                      `json:"alerting,omitempty" ini:"alerting,omitempty"`
+	UnifiedAlerting               *GrafanaConfigUnifiedAlerting               `json:"unified_alerting,omitempty" ini:"unified_alerting,omitempty"`
 	Panels                        *GrafanaConfigPanels                        `json:"panels,omitempty" ini:"panels,omitempty"`
 	Plugins                       *GrafanaConfigPlugins                       `json:"plugins,omitempty" ini:"plugins,omitempty"`
 	Rendering                     *GrafanaConfigRendering                     `json:"rendering,omitempty" ini:"rendering,omitempty"`
@@ -480,7 +484,8 @@ type GrafanaConfigAnalytics struct {
 
 type GrafanaConfigDashboards struct {
 	// +nullable
-	VersionsToKeep *int `json:"versions_to_keep,omitempty" ini:"versions_to_keep,omitempty"`
+	VersionsToKeep           *int   `json:"versions_to_keep,omitempty" ini:"versions_to_keep,omitempty"`
+	DefaultHomeDashboardPath string `json:"default_home_dashboard_path,omitempty" ini:"default_home_dashboard_path,omitempty"`
 }
 
 type GrafanaConfigSmtp struct {
@@ -597,6 +602,15 @@ type GrafanaConfigAlerting struct {
 	NotificationTimeoutSeconds *int `json:"notification_timeout_seconds,omitempty" ini:"notification_timeout_seconds,omitempty"`
 	// +nullable
 	MaxAttempts *int `json:"max_attempts,omitempty" ini:"max_attempts,omitempty"`
+}
+
+type GrafanaConfigUnifiedAlerting struct {
+	// +nullable
+	Enabled           *bool  `json:"enabled,omitempty" ini:"enabled"`
+	ExecuteAlerts     *bool  `json:"execute_alerts,omitempty" ini:"execute_alerts"`
+	EvaluationTimeout string `json:"evaluation_timeout,omitempty" ini:"evaluation_timeout,omitempty"`
+	MaxAttempts       *int   `json:"max_attempts,omitempty" ini:"max_attempts,omitempty"`
+	MinInterval       string `json:"min_interval,omitempty" ini:"min_interval,omitempty"`
 }
 
 type GrafanaConfigPanels struct {
