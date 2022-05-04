@@ -132,6 +132,15 @@ GrafanaDashboardSpec defines the desired state of GrafanaDashboard
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>orgId</b></td>
+        <td>integer</td>
+        <td>
+          OrgId is the Grafana OrgId to create the dashboard and corresponding folder in it.<br/>
+          <br/>
+            <i>Minimum</i>: 0<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b><a href="#grafanadashboardspecpluginsindex">plugins</a></b></td>
         <td>[]object</td>
         <td>
